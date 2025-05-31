@@ -1,0 +1,32 @@
+{% load i18n %}
+
+{% block subject %}
+    {% blocktrans %} Activation Compte  {{ site_name }}{% endblocktrans %}
+{% endblock subject %}
+
+{% block text_body %}
+    {% blocktrans %} Vous avez reçu cet email pour finaliser le processus
+        de validation de votre compte.
+    {% endblocktrans %}
+
+    {% trans "Veuillez utiliser votre code d'activation:" %}
+    {{ confirm_code }}
+
+    {% trans "Merci d'avoir rejoint notre communauté!" %}
+
+    {% blocktrans %}L'équipe {{ site_name }}{% endblocktrans %}
+{% endblock text_body %}
+
+{% block html_body %}
+    <p> {% blocktrans %} Vous avez reçu cet email pour finaliser le processus
+        de validation de votre compte.
+    {% endblocktrans %}</p>
+
+    <p>{% trans "Veuillez utiliser votre code d'activation:" %}</p>
+    <p>
+        <a href="#">{{ confirm_code }}</a>
+    <p>{% trans "Merci d'avoir rejoint notre communauté!" %}</p>
+
+    <p>{% blocktrans %}L'équipe {{ site_name }}{% endblocktrans %}</p>
+
+{% endblock html_body %}
