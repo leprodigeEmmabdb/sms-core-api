@@ -2,7 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from dotenv import load_dotenv as load_env
 
+# Charger les variables d'environnement depuis le fichier .env
+load_env()
 
 def main():
     """Run administrative tasks."""
