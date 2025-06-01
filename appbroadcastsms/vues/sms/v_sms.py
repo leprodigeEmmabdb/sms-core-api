@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from appbroadcastsms.command.cmd import send_sms
+from appbroadcastsms.command.cmd.smpp_client import send_sms
 from appbroadcastsms.vues.sms.sz_sms import (
     AddSmsSerializer, SendBroadcastMessageSerializer,
     SendSingleSmsSerializer, SmsSerializer, UpdateSmsSerializer
