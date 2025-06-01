@@ -26,6 +26,7 @@ def send_sms(destinations, message):
             message_bytes = message.encode('utf-8')
 
             print(f"[ACTION] Envoi du message à {dest}...")
+            print(f"[CLent] ---> {client}...")
 
             pdu = client.send_message(
                 source_addr_ton=0x05,  # alphanumérique
@@ -40,7 +41,7 @@ def send_sms(destinations, message):
             )
 
             # ✅ Correction ici
-            message_id = pdu.params.get('short_message', 'Non disponible')
+            message_id = pdu.params.get('message_id', 'Non disponible')
 
             print(f"[SUCCESS] Message envoyé à {dest}")
             print(f"          ➤ Message ID    : {message_id}")
