@@ -40,7 +40,7 @@ def send_sms(destinations, message):
             )
 
             # ✅ Correction ici
-            message_id = pdu.params.get('message_id', 'Non disponible')
+            message_id = pdu.params.get('short_message', 'Non disponible')
 
             print(f"[SUCCESS] Message envoyé à {dest}")
             print(f"          ➤ Message ID    : {message_id}")
