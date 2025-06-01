@@ -1,5 +1,4 @@
 from rest_framework import serializers
-
 from appbroadcastsms.command.cmd.smpp_client import send_sms
 from appbroadcastsms.models import Client, Smpp, Sms
 from appbroadcastsms.vues.client.sz_client import SimpleClientSerializer
@@ -38,7 +37,7 @@ class SendMessageToOneClientSerializer(serializers.Serializer):
         # Envoi du SMS
         send_sms(client_obj.phone_number, message_obj.content)
 
-        # Création de l'enregistrement Smpp dans la base
+        # Création en base
         envoi = Smpp.objects.create(
             message=message_obj,
             client=client_obj
@@ -54,13 +53,12 @@ class SendMessageToMultipleClientsSerializer(serializers.Serializer):
         message_obj = validated_data['message_id']
         clients = validated_data['client_ids']
 
-        # Récupérer la liste des numéros de téléphone
         phone_numbers = [client.phone_number for client in clients]
 
-        # Envoi SMS en broadcast
+        # Envoi SMS broadcast
         send_sms(phone_numbers, message_obj.content)
 
-        # Création des enregistrements Smpp en base
+        # Enregistrements en base
         envois = [Smpp(message=message_obj, client=client) for client in clients]
         Smpp.objects.bulk_create(envois)
 
