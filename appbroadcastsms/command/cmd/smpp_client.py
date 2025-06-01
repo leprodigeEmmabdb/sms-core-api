@@ -25,15 +25,16 @@ def send_sms(destinations, message):
         message_bytes = message.encode('utf-8')
 
         pdu = client.send_message(
-            source_addr_ton=smpplib.consts.SMPP_TON_ALNUM,  # 0x05 - alphanumérique
+            source_addr_ton=0x05,  # alphanumérique
             source_addr_npi=0,
             source_addr='PKM-Invest',
-            dest_addr_ton=smpplib.consts.SMPP_TON_NATIONAL,  # 0x02 - numéro national (local)
-            dest_addr_npi=smpplib.consts.SMPP_NPI_ISDN,      # 0x01 - ISDN (numéro standard)
+            dest_addr_ton=0x02,    # national
+            dest_addr_npi=0x01,    # ISDN
             destination_addr=dest,
             short_message=message_bytes,
             data_coding=0,
         )
+
         print(f'Message envoyé à {dest}, PDU: {pdu}')
 
     client.unbind()
