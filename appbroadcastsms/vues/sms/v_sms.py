@@ -1,3 +1,4 @@
+import traceback
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -40,14 +41,15 @@ class SmsViewSet(viewsets.ModelViewSet):
         message = serializer.validated_data['message']
 
         try:
-            send_sms('0844708502', "bonjour ceci est un test")
+            send_sms(receiver, message)
         except Exception as e:
+            tb = traceback.format_exc()
+            print(f"Erreur lors de l'envoi du SMS:\n{tb}")
             return Response({"error": f"Sending failed: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response({"status": "Message sent successfully"},
-                        status=status.HTTP_200_OK)
-
+        return Response({"status": "Message sent successfully"}, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['POST'], name="Send SMS to multiple receivers")
     def send_broadcast(self, request):
         serializer = SendBroadcastMessageSerializer(data=request.data)
