@@ -33,7 +33,6 @@ class Smpp(models.Model):
     date_reception_statut = models.DateTimeField(null=True, blank=True)        # date du dernier statut DLR
 
     class Meta:
-        unique_together = ('client', 'message')
-
+        pass
     def __str__(self):
         return f"Envoi msg {self.message.id} à client {self.client.numero}"
