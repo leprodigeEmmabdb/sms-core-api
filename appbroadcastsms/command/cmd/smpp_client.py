@@ -39,8 +39,11 @@ def send_sms(destinations, message):
                 registered_delivery=True  # Demander un delivery report
             )
 
+            # ✅ Correction ici
+            message_id = pdu.params.get('message_id', 'Non disponible')
+
             print(f"[SUCCESS] Message envoyé à {dest}")
-            print(f"          ➤ Message ID    : {pdu.message_id}")
+            print(f"          ➤ Message ID    : {message_id}")
             print(f"          ➤ PDU Status    : {pdu.status}")
             print(f"          ➤ PDU Sequence  : {pdu.sequence}")
 
