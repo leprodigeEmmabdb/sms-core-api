@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from appbroadcastsms.command.cmd import smpp_client
 from appbroadcastsms.models import Sms
 from appbroadcastsms.vues.sms.sz_sms import AddSmsSerializer, SendBroadcastMessageSerializer, SendBroadcastMessageSerializer, SendSingleSmsSerializer, SmsSerializer, UpdateSmsSerializer
 from appuser.vues.user.sz_user import EmptySZ

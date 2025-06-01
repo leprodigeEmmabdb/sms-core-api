@@ -24,11 +24,11 @@ def send_sms(destinations, message):
 
     for dest in destinations:
         pdu = client.send_message(
-            source_addr_ton=smpplib.consts.SMPP_TON_ALNUM,  # Nom expéditeur alphanumérique
-            source_addr_npi=smpplib.consts.SMPP_NPI_UNKNOWN,
+            source_addr_ton=0x05,  # Nom expéditeur alphanumérique
+            source_addr_npi=0,
             source_addr='PKM-Invest',  # Nom expéditeur
-            dest_addr_ton=smpplib.consts.SMPP_TON_INTL,
-            dest_addr_npi=smpplib.consts.SMPP_NPI_ISDN,
+            dest_addr_ton=2,
+            dest_addr_npi=1,
             destination_addr=dest,
             short_message=message,
             data_coding=0,
