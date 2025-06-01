@@ -29,11 +29,11 @@ def send_sms(destinations, message):
             print(f"[CLent] ---> {client}...")
 
             pdu = client.send_message(
-                source_addr_ton=0x05,  # alphanumérique
+                source_addr_ton=5,  # alphanumérique
                 source_addr_npi=0,
                 source_addr='PKM-Invest',
-                dest_addr_ton=0x02,    # national
-                dest_addr_npi=0x01,    # ISDN
+                dest_addr_ton=5,    # national
+                dest_addr_npi=0,    # ISDN
                 destination_addr=dest,
                 short_message=message_bytes,
                 data_coding=0,
