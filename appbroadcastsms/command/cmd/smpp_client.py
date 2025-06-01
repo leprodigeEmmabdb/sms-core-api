@@ -3,7 +3,6 @@ import smpplib.client
 import smpplib.consts
 from dotenv import load_dotenv as load_env
 
-# Charger les variables d'environnement depuis le fichier .env
 load_env()
 
 def send_sms(destinations, message):
@@ -18,19 +17,20 @@ def send_sms(destinations, message):
     client.connect()
     client.bind_transmitter(system_id=os.environ.get('SMPP_USERNAME'), password=os.environ.get('SMPP_PASSWORD'))
 
-    # Si destinations est un str, on le transforme en liste pour uniformiser la boucle
     if isinstance(destinations, str):
         destinations = [destinations]
 
     for dest in destinations:
+        # Encodage message (ici utf-8, adapter selon besoin)
+        message_bytes = message.encode('utf-8')
         pdu = client.send_message(
-            source_addr_ton=0x05,  # Nom expéditeur alphanumérique
+            source_addr_ton=0x05,  # SMPP_TON_ALNUM
             source_addr_npi=0,
-            source_addr='PKM-Invest',  # Nom expéditeur
-            dest_addr_ton=2,
-            dest_addr_npi=1,
+            source_addr='PKM-Invest',
+            dest_addr_ton=2,       # SMPP_TON_NATIONAL (numéro local)
+            dest_addr_npi=1,       # SMPP_NPI_ISDN
             destination_addr=dest,
-            short_message=message,
+            short_message=message_bytes,
             data_coding=0,
         )
         print(f'Message envoyé à {dest}, PDU: {pdu}')
