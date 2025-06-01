@@ -8,9 +8,7 @@ from appbroadcastsms.vues.sms.sz_sms import (
     AddSmsSerializer, SendBroadcastMessageSerializer,
     SendSingleSmsSerializer, SmsSerializer, UpdateSmsSerializer
 )
-
 from appbroadcastsms.models import Sms
-
 
 class SmsViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch']
@@ -49,7 +47,7 @@ class SmsViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"status": "Message sent successfully"}, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['POST'], name="Send SMS to multiple receivers")
     def send_broadcast(self, request):
         serializer = SendBroadcastMessageSerializer(data=request.data)

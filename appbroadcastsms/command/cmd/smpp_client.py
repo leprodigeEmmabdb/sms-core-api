@@ -7,7 +7,7 @@ load_env()
 
 def send_sms(destinations, message):
     """
-    Envoie un SMS à un ou plusieurs destinataires.
+    Envoie un SMS à un ou plusieurs destinataires via SMPP.
 
     :param destinations: str (numéro unique) ou list de str (plusieurs numéros)
     :param message: str, contenu du SMS
@@ -21,14 +21,15 @@ def send_sms(destinations, message):
         destinations = [destinations]
 
     for dest in destinations:
-        # Encodage message (ici utf-8, adapter selon besoin)
+        # Encoder le message en bytes (utf-8)
         message_bytes = message.encode('utf-8')
+
         pdu = client.send_message(
-            source_addr_ton=0x05,  # SMPP_TON_ALNUM
+            source_addr_ton=smpplib.consts.SMPP_TON_ALNUM,  # 0x05 - alphanumérique
             source_addr_npi=0,
             source_addr='PKM-Invest',
-            dest_addr_ton=2,       # SMPP_TON_NATIONAL (numéro local)
-            dest_addr_npi=1,       # SMPP_NPI_ISDN
+            dest_addr_ton=smpplib.consts.SMPP_TON_NATIONAL,  # 0x02 - numéro national (local)
+            dest_addr_npi=smpplib.consts.SMPP_NPI_ISDN,      # 0x01 - ISDN (numéro standard)
             destination_addr=dest,
             short_message=message_bytes,
             data_coding=0,
@@ -40,8 +41,5 @@ def send_sms(destinations, message):
 
 
 if __name__ == '__main__':
-    # Exemple d'envoi à un seul numéro
-    send_sms('33612345678', 'Hello depuis SMPP avec Python !')
-
-    # Exemple d'envoi à plusieurs numéros
-    send_sms(['33612345678', '33798765432'], 'Message broadcast à plusieurs destinataires !')
+    send_sms('0859415536', 'Hello depuis SMPP avec Python !')
+    send_sms(['0859415536', '0852551234'], 'Message broadcast à plusieurs destinataires !')
