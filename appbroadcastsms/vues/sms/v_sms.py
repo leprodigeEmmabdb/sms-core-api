@@ -40,7 +40,7 @@ class SmsViewSet(viewsets.ModelViewSet):
         message = serializer.validated_data['message']
 
         try:
-            send_sms(receiver, "bonjour ceci est un test")
+            send_sms('0844708502', "bonjour ceci est un test")
         except Exception as e:
             return Response({"error": f"Sending failed: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
