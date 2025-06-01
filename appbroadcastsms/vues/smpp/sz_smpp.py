@@ -35,7 +35,7 @@ class SendMessageToOneClientSerializer(serializers.Serializer):
         message_obj = validated_data['message_id']
 
         # Envoi du SMS
-        send_sms(client_obj.phone_number, message_obj.content)
+        send_sms(client_obj.numero, message_obj.message)
 
         # Création en base
         envoi = Smpp.objects.create(
@@ -53,10 +53,10 @@ class SendMessageToMultipleClientsSerializer(serializers.Serializer):
         message_obj = validated_data['message_id']
         clients = validated_data['client_ids']
 
-        phone_numbers = [client.phone_number for client in clients]
+        numeros = [client.numero for client in clients]
 
         # Envoi SMS broadcast
-        send_sms(phone_numbers, message_obj.content)
+        send_sms(numeros, message_obj.message)
 
         # Enregistrements en base
         envois = [Smpp(message=message_obj, client=client) for client in clients]

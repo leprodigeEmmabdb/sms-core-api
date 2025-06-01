@@ -39,7 +39,7 @@ class SmppViewSet(viewsets.ModelViewSet):
         sms = serializer.validated_data['message_id']
 
         try:
-            send_sms(client.phone_number, sms.content)  # adapte le champ au modèle Client/Sms
+            send_sms(client.numero, sms.message)  # adapte le champ au modèle Client/Sms
 
             smpp_obj = Smpp.objects.create(message=sms, client=client)
 
@@ -56,10 +56,10 @@ class SmppViewSet(viewsets.ModelViewSet):
         clients = serializer.validated_data['client_ids']
         sms = serializer.validated_data['message_id']
 
-        phone_numbers = [client.phone_number for client in clients]
+        numeros = [client.numero for client in clients]
 
         try:
-            send_sms(phone_numbers, sms.content)
+            send_sms(numeros, sms.message)
 
             envois = [Smpp(message=sms, client=client) for client in clients]
             Smpp.objects.bulk_create(envois)
