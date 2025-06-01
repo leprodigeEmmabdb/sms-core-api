@@ -56,5 +56,5 @@ def send_sms(destinations, message):
         print(f"[ERROR] Une erreur est survenue : {str(e)}")
 
 if __name__ == '__main__':
-    send_sms('0859415536', 'Hello depuis SMPP avec Python !')
-    send_sms(['0859415536', '0852551234'], 'Message broadcast à plusieurs destinataires !')
+    send_sms('0844192548', 'Hello depuis SMPP avec Python !')
+    send_sms(['0859415536', '0844192548'], 'Message broadcast à plusieurs destinataires !')
