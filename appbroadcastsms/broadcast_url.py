@@ -7,7 +7,7 @@ from rest_framework_nested import routers # type: ignore
 router = routers.DefaultRouter()
 router.register('client', ClientViewSet, basename="client")
 router.register('sms', SmsViewSet, basename="sms")
-router.register('send-message', SmppViewSet, basename="send-message")
+router.register('send-message', SmsViewSet, basename="send-message")
 #
 
 
