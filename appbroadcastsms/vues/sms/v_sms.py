@@ -39,7 +39,8 @@ class SmsViewSet(viewsets.ModelViewSet):
             data = serializer.validated_data
             
             result = send_sms(data['receiver'], data['message'])
-            return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else 500)
+            print(f"Result of sending SMS: {result}")  # Debugging line to check the result
+            return Response(result, status=status.HTTP_200_OK if result else 500)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'], url_path='send-bulk')
