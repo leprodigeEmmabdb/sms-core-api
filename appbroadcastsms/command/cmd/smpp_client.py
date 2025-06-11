@@ -37,6 +37,7 @@ def send_sms(destinations, message):
 
         client.connect()
         logging.info(f"[INFO] Bind en tant que transceiver (system_id={system_id})")
+        print(f"[INFO] Bind en tant que transceiver (system_id={system_id})")
         client.bind_transceiver(system_id=system_id, password=password)
 
         if isinstance(destinations, str):
@@ -61,8 +62,10 @@ def send_sms(destinations, message):
                     registered_delivery=True
                 )
                 logging.info(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
+                print(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
 
         logging.info("[INFO] Fin de session : unbind & disconnect")
+        print("[INFO] Fin de session : unbind & disconnect")
         client.unbind()
         client.disconnect()
 
@@ -71,4 +74,4 @@ def send_sms(destinations, message):
 
 if __name__ == '__main__':
     send_sms('0844192548', 'Hello depuis SMPP avec Python ! €$£')
-    send_sms(['0859415536', '0844192548'], 'Broadcast à plusieurs destinataires avec acc. réception.')
+    send_sms(['0844192548', '0844192548'], 'Broadcast à plusieurs destinataires avec acc. réception.')
