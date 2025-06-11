@@ -55,6 +55,7 @@ class SmppClient:
             # Extrait les infos du DLR (exemple format SMPP DLR texte)
             # Exemple: id:12345 sub:001 dlvrd:001 submit date:2001011200 done date:2001011201 stat:DELIVRD err:000 text:
             logging.info(f"[DLR RECEIVED] {dlr_text}")
+            print(f"[DLR RECEIVED] {dlr_text}")
 
             # Si tu veux parser pour extraire statut et message_id:
             stat = None
@@ -65,7 +66,7 @@ class SmppClient:
                     stat = part[5:]
                 elif part.startswith('id:'):
                     msg_id = part[3:]
-
+            print(f"[DLR PARSED] message_id={msg_id}, status={stat}")
             logging.info(f"[DLR PARSED] message_id={msg_id}, status={stat}")
         except Exception as e:
             logging.error(f"Erreur lors du traitement du DLR: {e}")
