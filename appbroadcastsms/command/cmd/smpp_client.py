@@ -85,7 +85,7 @@ def is_valid_phone(number):
     if number.startswith('243') and len(number) == 12:
         return number  # Ex: 243844192548
 
-    if len(number) == 9 and not number.startswith('0'):
+    if len(number) == 9 or not number.startswith('0'):
         return '243' + number  # Ex: 844192548 → 243844192548
 
     return None  # Numéro invalide
