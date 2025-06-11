@@ -55,4 +55,4 @@ class SmppClient:
 if __name__ == '__main__':
     smpp_client = SmppClient()
     smpp_client.send_sms('243844192548', 'Hello depuis SMPP avec Python ! €$£')
-    smpp_client.send_sms(['243844192548', '243847038573'], 'Broadcast à plusieurs destinataires avec acc. réception.')
+    smpp_client.send_sms(['243844192548', '243847038573'], 'Cherchez-vous un Smartphone, Powerbank,chargeur, ordinateur aux meilleurs prix ? Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04 ,Ref.rond-point magasin kitambo.')
