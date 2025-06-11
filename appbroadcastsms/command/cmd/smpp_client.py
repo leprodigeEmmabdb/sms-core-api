@@ -2,6 +2,7 @@
 
 import os
 import logging
+import time
 from dotenv import load_dotenv
 import smpplib.client
 import smpplib.consts
@@ -60,12 +61,17 @@ SMPP_STATUS_CODES = {
     0x000000FE: "ESME_RDELIVERYFAILURE - Delivery Failure (used by some vendors)",
     0x000000FF: "ESME_RUNKNOWNERR - Unknown Error"
 }
+
 # Configuration du logging
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 
 def handle_deliver_sm(pdu):
     """Callback pour traiter les accusés de réception"""
-    logging.info(f"[DLR] Reçu pour msgid: {pdu.receipted_message_id}")
+    try:
+        short_message = pdu.params.get('short_message', b'').decode(errors='ignore')
+        logging.info(f"[DLR] ➤ From SMSC: {short_message}")
+    except Exception as e:
+        logging.error(f"[DLR] ➤ Erreur lors du traitement du DLR: {str(e)}")
     return 0
 
 def send_sms(destinations, message):
@@ -118,10 +124,16 @@ def send_sms(destinations, message):
                 logging.info(log_msg)
                 print(log_msg)
 
-            logging.info("[INFO] Fin de session : unbind & disconnect")
-            print("[INFO] Fin de session : unbind & disconnect")
-            client.unbind()
-            client.disconnect()
+        logging.info("[INFO] Attente des DLR pendant 15 secondes...")
+        start = time.time()
+        while time.time() - start < 15:
+            client.read_once()
+            time.sleep(0.2)
+
+        logging.info("[INFO] Fin de session : unbind & disconnect")
+        print("[INFO] Fin de session : unbind & disconnect")
+        client.unbind()
+        client.disconnect()
 
     except Exception as e:
         logging.error(f"[ERROR] {str(e)}")
