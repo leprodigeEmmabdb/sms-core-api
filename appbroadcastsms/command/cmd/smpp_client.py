@@ -95,8 +95,8 @@ if __name__ == '__main__':
 
     csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../Q1_2024 Batch 26.csv')
     csv_path = os.path.abspath(csv_path)
-    
-    cleaned_numbers = []
+
+    cleaned_numbers = set()
 
     with open(csv_path, newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
@@ -105,14 +105,17 @@ if __name__ == '__main__':
                 continue
             raw_number = row[0]
             number = raw_number.split(':')[0].strip()
-            if is_valid_phone(number):
-                cleaned_numbers.append(number)
+            normalized = is_valid_phone(number)
+            if normalized:
+                cleaned_numbers.add(normalized)
             else:
                 print(f"Numéro invalide ignoré : {number}")
 
     if cleaned_numbers:
-        message = ("Cherchez-vous un Smartphone, Powerbank,chargeur, ordinateur aux meilleurs prix ? "
-                   "Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04 ,Ref.rond-point magasin kitambo.")
-        smpp_client.send_sms(cleaned_numbers, message)
+        message = (
+            "Cherchez-vous un Smartphone, Powerbank, chargeur, ordinateur aux meilleurs prix ? "
+            "Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04, Ref. rond-point magasin kitambo."
+        )
+        smpp_client.send_sms(list(cleaned_numbers), message)
     else:
         print("Aucun numéro valide trouvé dans le fichier CSV.")
