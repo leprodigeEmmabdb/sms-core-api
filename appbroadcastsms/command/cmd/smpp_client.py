@@ -88,7 +88,7 @@ if __name__ == '__main__':
     
     cleaned_numbers = []
 
-    with open(csv_file, newline='', encoding='utf-8') as f:
+    with open(csv_path, newline='', encoding='utf-8') as f:
         reader = csv.reader(f)
         for row in reader:
             if not row:
