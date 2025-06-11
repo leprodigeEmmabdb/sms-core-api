@@ -77,8 +77,18 @@ class SmppClient:
 
 
 def is_valid_phone(number):
-    pattern = r'^\+?\d{8,15}$'  # 8 à 15 chiffres, + optionnel
-    return bool(re.match(pattern, number))
+    number = number.strip().replace(' ', '').replace('-', '')
+    
+    if number.startswith('+'):
+        number = number[1:]
+
+    if number.startswith('243') and len(number) == 12:
+        return number  # Ex: 243844192548
+
+    if len(number) == 9 and not number.startswith('0'):
+        return '243' + number  # Ex: 844192548 → 243844192548
+
+    return None  # Numéro invalide
 
 if __name__ == '__main__':
     smpp_client = SmppClient()
