@@ -98,4 +98,4 @@ def send_sms(destinations, message):
 
 if __name__ == '__main__':
     send_sms('243844192548', 'Hello depuis SMPP avec Python ! €$£')
-    send_sms(['243844192548', '243844192548'], 'Broadcast à plusieurs destinataires avec acc. réception.')
+    send_sms(['243844192548', '243847038573'], 'Broadcast à plusieurs destinataires avec acc. réception.')
