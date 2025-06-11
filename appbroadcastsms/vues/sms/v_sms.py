@@ -1,84 +1,74 @@
 # appbroadcastsms/vues/sms/views.py
 
-import pandas as pd
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from appbroadcastsms.command.cmd.smpp_client import send_sms
+from appbroadcastsms.command.cmd.smpp_client import smpp_client  # import du singleton
 
-from appbroadcastsms.models import Sms
+from appbroadcastsms.models import Sms, Smpp
 from appbroadcastsms.vues.sms.sz_sms import (
     AddSmsSerializer,
-    SendFileSmsSerializer,
     UpdateSmsSerializer,
     SmsSerializer,
-    SendSingleSmsSerializer,
-    SendBroadcastMessageSerializer
 )
+from appuser.vues.user.sz_user import EmptySZ
 
 
 class SmsViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch']
     queryset = Sms.objects.all()
+    
+    crud_classes = {
+        "POST": AddSmsSerializer,
+        "PUT": UpdateSmsSerializer,
+        "PATCH": UpdateSmsSerializer,
+    }
+    
+    actions_classes = {
+        "send_single": EmptySZ,
+        "send_broadcast": EmptySZ,
+    }
 
     def get_serializer_class(self):
-        if self.action == 'send_single_sms':
-            return SendSingleSmsSerializer
-        elif self.action == 'send_bulk_sms':
-            return SendBroadcastMessageSerializer
-        elif self.request.method == 'POST':
-            return AddSmsSerializer
-        elif self.request.method in ['PUT', 'PATCH']:
-            return UpdateSmsSerializer
-        return SmsSerializer
-
-    @action(detail=False, methods=['post'], url_path='send-single')
-    def send_single_sms(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            
-            result = send_sms(data['receiver'], data['message'])
-            print(f"Result of sending SMS: {result}")  # Debugging line to check the result
-            return Response(result, status=status.HTTP_200_OK if result else 500)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['post'], url_path='send-bulk')
-    def send_bulk_sms(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            result = send_sms(data['receivers'], data['message'])
-            return Response(result, status=status.HTTP_200_OK if result['status'] == 'success' else 500)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if self.action in self.actions_classes:
+            return self.actions_classes[self.action]
+        return self.crud_classes.get(self.request.method, SmsSerializer)
     
-    @action(detail=False, methods=['post'], url_path='send-from-file')
-    def send_from_file(self, request):
-        serializer = SendFileSmsSerializer(data=request.data)
-        if serializer.is_valid():
-            message = serializer.validated_data['message']
-            file = serializer.validated_data['file']
+    @action(detail=False, methods=['POST'], name="Send SMS to single receiver")
+    def send_single(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-            try:
-                # Lire les numéros depuis le fichier (XLSX ou CSV)
-                if file.name.endswith('.csv'):
-                    df = pd.read_csv(file)
-                else:
-                    df = pd.read_excel(file)
+        client = serializer.validated_data['client_id']
+        sms = serializer.validated_data['message_id']
 
-                # On suppose que la colonne contenant les numéros s'appelle 'receiver'
-                if 'receiver' not in df.columns:
-                    return Response({"error": "Colonne 'receiver' non trouvée."}, status=400)
+        try:
+            smpp_client.send_sms(client.numero, sms.message)
 
-                receivers = df['receiver'].dropna().astype(str).tolist()
+            smpp_obj = Smpp.objects.create(message=sms, client=client)
 
-                # Tu peux aussi filtrer ici avec `validate_rdc_number` si tu veux
-                if not receivers:
-                    return Response({"error": "Aucun numéro valide trouvé."}, status=400)
+        except Exception as e:
+            return Response({"error": f"Sending failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                result = send_sms(receivers, message)
-                return Response(result, status=200 if result['status'] == 'success' else 500)
+        return Response({"status": "Message sent successfully", "smpp_id": smpp_obj.id}, status=status.HTTP_200_OK)
 
-            except Exception as e:
-                return Response({"error": f"Erreur lors du traitement du fichier: {str(e)}"}, status=500)
+    @action(detail=False, methods=['POST'], name="Send SMS to multiple receivers")
+    def send_broadcast(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
+        clients = serializer.validated_data['client_ids']
+        sms = serializer.validated_data['message_id']
+
+        numeros = [client.numero for client in clients]
+
+        try:
+            smpp_client.send_sms(numeros, sms.message)
+
+            envois = [Smpp(message=sms, client=client) for client in clients]
+            Smpp.objects.bulk_create(envois)
+
+        except Exception as e:
+            return Response({"error": f"Sending failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"status": "All messages sent successfully"}, status=status.HTTP_200_OK)
