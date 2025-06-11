@@ -98,7 +98,9 @@ if __name__ == '__main__':
 
     cleaned_numbers = set()
 
-    with open(csv_path, newline='', encoding='utf-8') as f:
+    # with open(csv_path, newline='', encoding='utf-8') as f:
+    with open(csv_path, newline='', encoding='utf-8-sig') as f:
+
         reader = csv.reader(f)
         for row in reader:
             if not row:
