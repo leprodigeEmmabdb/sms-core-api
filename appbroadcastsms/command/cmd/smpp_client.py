@@ -1,12 +1,17 @@
+#!/usr/bin/env python3
+
 import os
 import logging
 import smpplib.client
 import smpplib.consts
 import smpplib.gsm
 import csv
-import re
 from dotenv import load_dotenv
 
+# Configuration logging
+logging.basicConfig(level=logging.INFO)
+
+# Charger les variables d'environnement
 load_dotenv()
 
 class SmppClient:
@@ -15,13 +20,22 @@ class SmppClient:
         self.port = int(os.getenv('SMPP_PORT'))
         self.system_id = os.getenv('SMPP_USERNAME')
         self.password = os.getenv('SMPP_PASSWORD')
+
         self.client = smpplib.client.Client(self.host, self.port)
+
+        # Log quand un message est envoyé avec succès
+        self.client.set_message_sent_handler(
+            lambda pdu: logging.info(f"[SUBMIT_RESP] seq={pdu.sequence} msgid={pdu.message_id}")
+        )
+
+        # Log quand un message est reçu (DLR / MO)
+        self.client.set_message_received_handler(self.handle_deliver_sm)
+
+        # Connexion et bind
         self.client.connect()
         self.client.bind_transceiver(system_id=self.system_id, password=self.password)
-        logging.info(f"Connected and bound to SMPP {self.host}:{self.port} as {self.system_id}")
 
-        # Brancher la gestion des DLR (deliver_sm)
-        self.client.set_message_received_handler(self.handle_deliver_sm)
+        logging.info(f"[CONNECTED] Bound to SMPP {self.host}:{self.port} as {self.system_id}")
 
     def send_sms(self, destinations, message):
         if isinstance(destinations, str):
@@ -48,16 +62,11 @@ class SmppClient:
                 logging.info(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
 
     def handle_deliver_sm(self, pdu):
-        # Cette méthode est appelée à la réception d'un deliver_sm (DLR)
-        # pdu.short_message contient le rapport DLR sous forme de texte
         try:
             dlr_text = pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
-            # Extrait les infos du DLR (exemple format SMPP DLR texte)
-            # Exemple: id:12345 sub:001 dlvrd:001 submit date:2001011200 done date:2001011201 stat:DELIVRD err:000 text:
             logging.info(f"[DLR RECEIVED] {dlr_text}")
-            print(f"[DLR RECEIVED] {dlr_text}")
 
-            # Si tu veux parser pour extraire statut et message_id:
+            # Extraire ID et statut
             stat = None
             msg_id = None
             parts = dlr_text.split()
@@ -66,30 +75,39 @@ class SmppClient:
                     stat = part[5:]
                 elif part.startswith('id:'):
                     msg_id = part[3:]
-            print(f"[DLR PARSED] message_id={msg_id}, status={stat}")
+
             logging.info(f"[DLR PARSED] message_id={msg_id}, status={stat}")
         except Exception as e:
-            logging.error(f"Erreur lors du traitement du DLR: {e}")
+            logging.error(f"[DLR ERROR] {e}")
+
+    def listen(self):
+        try:
+            logging.info("[LISTENING] Waiting for DLRs...")
+            self.client.listen()
+        except KeyboardInterrupt:
+            logging.info("[STOPPED] Interrupted by user.")
+        finally:
+            self.disconnect()
 
     def disconnect(self):
-        self.client.unbind()
-        self.client.disconnect()
-        logging.info("Disconnected SMPP client")
+        try:
+            self.client.unbind()
+            self.client.disconnect()
+            logging.info("[DISCONNECTED] SMPP session closed.")
+        except Exception as e:
+            logging.warning(f"[DISCONNECT ERROR] {e}")
 
 
 def is_valid_phone(number):
     number = number.strip().replace(' ', '').replace('-', '')
-    
     if number.startswith('+'):
         number = number[1:]
-
     if number.startswith('243') and len(number) == 12:
-        return number  # Ex: 243844192548
-
+        return number
     if len(number) == 9 or not number.startswith('0'):
-        return '243' + number  # Ex: 844192548 → 243844192548
+        return '243' + number
+    return None
 
-    return None  # Numéro invalide
 
 if __name__ == '__main__':
     smpp_client = SmppClient()
@@ -110,12 +128,13 @@ if __name__ == '__main__':
                 if normalized:
                     cleaned_numbers.add(normalized)
                 else:
-                    print(f"Numéro invalide ignoré : {number}")
+                    logging.warning(f"Numéro invalide ignoré : {number}")
 
         if cleaned_numbers:
             message = "bulk test 1"
             smpp_client.send_sms(list(cleaned_numbers), message)
+            smpp_client.listen()
         else:
-            print("Aucun numéro valide trouvé dans le fichier CSV.")
+            logging.warning("Aucun numéro valide trouvé dans le fichier CSV.")
     finally:
         smpp_client.disconnect()
