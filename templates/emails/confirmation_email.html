@@ -1,0 +1,21 @@
+{% load i18n %}
+
+{% block subject %}
+    {% blocktrans %}{{ site_name }} - Compte activé!{% endblocktrans %}
+{% endblock %}
+
+{% block text_body %}
+    {% trans "Votre compte est à present operationnel!" %}
+
+    {% trans "Bienvenue dans la communauté!" %}
+
+    {% blocktrans %}L'équipe {{ site_name }}{% endblocktrans %}
+{% endblock text_body %}
+
+{% block html_body %}
+    <p>{% trans "Votre compte est à present operationnel!" %}</p>
+
+    <p>{% trans "Bienvenue dans la communauté!" %}</p>
+
+    <p>{% blocktrans %}L'équipe {{ site_name }}{% endblocktrans %}</p>
+{% endblock html_body %}

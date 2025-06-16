@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% block html_body %}
+    <p> {% blocktrans %} Vous avez reçu cet email pour finaliser le processus
+        de validation de votre compte.
+    {% endblocktrans %}</p>
+
+    <p>{% trans "Veuillez utiliser votre code d'activation:" %}</p>
+    <p>
+        <a href="#">{{ confirm_code }}</a>
+    <p>{% trans "Merci d'avoir rejoint notre communauté!" %}</p>
+
+    <p>{% blocktrans %}L'équipe {{ site_name }}{% endblocktrans %}</p>
+
+{% endblock html_body %}
