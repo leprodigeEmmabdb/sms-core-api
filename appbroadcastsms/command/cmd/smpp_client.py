@@ -93,31 +93,29 @@ def is_valid_phone(number):
 
 if __name__ == '__main__':
     smpp_client = SmppClient()
+    try:
+        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../Q1_2024 Batch 26.csv')
+        csv_path = os.path.abspath(csv_path)
 
-    csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../Q1_2024 Batch 26.csv')
-    csv_path = os.path.abspath(csv_path)
+        cleaned_numbers = set()
 
-    cleaned_numbers = set()
+        with open(csv_path, newline='', encoding='utf-8-sig') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if not row:
+                    continue
+                raw_number = row[0]
+                number = raw_number.split(':')[0].strip()
+                normalized = is_valid_phone(number)
+                if normalized:
+                    cleaned_numbers.add(normalized)
+                else:
+                    print(f"Numéro invalide ignoré : {number}")
 
-    # with open(csv_path, newline='', encoding='utf-8') as f:
-    with open(csv_path, newline='', encoding='utf-8-sig') as f:
-
-        reader = csv.reader(f)
-        for row in reader:
-            if not row:
-                continue
-            raw_number = row[0]
-            number = raw_number.split(':')[0].strip()
-            normalized = is_valid_phone(number)
-            if normalized:
-                cleaned_numbers.add(normalized)
-            else:
-                print(f"Numéro invalide ignoré : {number}")
-
-    if cleaned_numbers:
-        message = (
-            "bulk test 1"
-        )
-        smpp_client.send_sms(list(cleaned_numbers), message)
-    else:
-        print("Aucun numéro valide trouvé dans le fichier CSV.")
+        if cleaned_numbers:
+            message = "bulk test 1"
+            smpp_client.send_sms(list(cleaned_numbers), message)
+        else:
+            print("Aucun numéro valide trouvé dans le fichier CSV.")
+    finally:
+        smpp_client.disconnect()
