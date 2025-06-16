@@ -72,8 +72,8 @@ class SmsViewSet(viewsets.ModelViewSet):
                 code_retour=str(getattr(pdu, 'status', 'NO_STATUS')),
                 message_id_smsc=msgid,
                 statut_dlr=None,
-                erreur_dlr=None,
-                text_dlr=None,
+                code_erreur_dlr=None,
+                dlr_texte_brut=None,
                 date_envoi=timezone.now(),
                 date_reception_statut=None,
                 date_livraison=None
