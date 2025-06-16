@@ -55,31 +55,33 @@ class SmsViewSet(viewsets.ModelViewSet):
         message = serializer.validated_data['message']
 
         try:
-            # Création ou récupération du client
             client, created = Client.objects.get_or_create(numero=numero)
-            # Création du SMS
             sms = Sms.objects.create(message=message)
 
             smpp = self.get_smpp_client()
-            # Envoi du SMS via SMPP, récupération du PDU réponse
             pdu = smpp.send_sms(client.numero, sms.message)
 
-            # Création de l'enregistrement SMPP avec champs DLR initialisés à None
+            # Décodage message_id s'il est en bytes
+            msgid = getattr(pdu, 'message_id', None)
+            if msgid is not None:
+                msgid = msgid.decode('utf-8') if isinstance(msgid, bytes) else str(msgid)
+
             smpp_obj = Smpp.objects.create(
                 message=sms,
                 client=client,
                 code_retour=str(getattr(pdu, 'status', 'NO_STATUS')),
-                message_id_smsc=getattr(pdu, 'message_id', None),
+                message_id_smsc=msgid,
                 statut_dlr=None,
                 erreur_dlr=None,
                 text_dlr=None,
-                date_reception_statut=None
+                date_envoi=timezone.now(),
+                date_reception_statut=None,
+                date_livraison=None
             )
 
             return Response({
                 "status": "Message sent successfully",
-                "smpp_id": smpp_obj.id,
-                "client_created": created
+                "body":SimpleAudienceSerializer(smpp_obj).data,
             }, status=status.HTTP_200_OK)
 
         except Exception as e:
