@@ -116,8 +116,7 @@ if __name__ == '__main__':
 
     if cleaned_numbers:
         message = (
-            "Cherchez-vous un Smartphone, Powerbank, chargeur, ordinateur aux meilleurs prix ? "
-            "Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04, Ref. rond-point magasin kitambo."
+            "bulk test 1"
         )
         smpp_client.send_sms(list(cleaned_numbers), message)
     else:
