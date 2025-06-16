@@ -33,6 +33,6 @@ class Smpp(models.Model):
     date_reception_statut = models.DateTimeField(null=True, blank=True)        # date du dernier statut DLR
 
     class Meta:
-        pass
+         db_table = "tb_broadcastsms"
     def __str__(self):
         return f"Envoi msg {self.message.id} à client {self.client.numero}"
