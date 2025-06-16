@@ -57,8 +57,8 @@ class SmsViewSet(viewsets.ModelViewSet):
             pdu = smpp.send_sms(client.numero, sms.message)
 
 
-            if pdu is None:
-                raise ValueError("Aucune réponse du SMSC, pdu est None")
+            # if pdu is None:
+            #     raise ValueError("Aucune réponse du SMSC, pdu est None")
 
             # safe access now
             smpp_obj = Smpp.objects.create(
