@@ -51,6 +51,7 @@ class SmsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['POST'], name="Send SMS to single receiver")
     def send_single(self, request):
+        smpp_client = SmppClient()
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -61,8 +62,8 @@ class SmsViewSet(viewsets.ModelViewSet):
             client, created = Client.objects.get_or_create(numero=numero)
             sms = Sms.objects.create(message=message)
 
-            smpp = self.get_smpp_client()
-            pdu = smpp.send_sms(client.numero, sms.message)
+            # smpp = self.get_smpp_client()
+            pdu = smpp_client.send_sms(client.numero, sms.message)
 
             # Décodage message_id s'il est en bytes
             msgid = getattr(pdu, 'message_id', None)
