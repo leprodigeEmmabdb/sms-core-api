@@ -11,7 +11,7 @@ class Client(ModelMixin):
     numero = models.CharField(max_length=255, unique=True)
 
     class Meta:
-        db_table = "tb_client"
+        db_table = "tb_clients"
 
     def __str__(self):
         return f"{self.numero}"
@@ -33,6 +33,6 @@ class Smpp(models.Model):
     date_reception_statut = models.DateTimeField(null=True, blank=True)        # date du dernier statut DLR
 
     class Meta:
-         db_table = "tb_broadcastsms"
+         db_table = "tb_smpp"
     def __str__(self):
         return f"Envoi msg {self.message.id} à client {self.client.numero}"
