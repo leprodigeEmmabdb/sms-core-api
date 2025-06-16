@@ -56,13 +56,17 @@ class SmsViewSet(viewsets.ModelViewSet):
             smpp = self.get_smpp_client()
             pdu = smpp.send_sms(client.numero, sms.message)
 
+
+            if pdu is None:
+                raise ValueError("Aucune réponse du SMSC, pdu est None")
+
+            # safe access now
             smpp_obj = Smpp.objects.create(
                 message=sms,
                 client=client,
-                code_retour=str(pdu.status),
+                code_retour=str(getattr(pdu, 'status', 'NO_STATUS')),
                 message_id_smsc=getattr(pdu, 'message_id', None)
             )
-
             return Response({
                 "status": "Message sent successfully",
                 "smpp_id": smpp_obj.id,
