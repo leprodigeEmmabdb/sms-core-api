@@ -17,7 +17,7 @@ from rest_framework.serializers import Serializer  # pour défaut
 
 class SmsViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch']
-    queryset = Sms.objects.all()
+    queryset = Sms.objects.all().order_by('-id')
 
     crud_classes = {
         "POST": AddSmsSerializer,
