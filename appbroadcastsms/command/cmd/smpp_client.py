@@ -62,23 +62,52 @@ class SmppClient:
                 logging.info(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
 
     def handle_deliver_sm(self, pdu):
+        """
+        Handler pour les PDU de type deliver_sm (DLR).
+        Extrait les informations du DLR, puis met à jour
+        la table Smpp correspondante avec le statut de livraison.
+        """
         try:
+            # Extraction du message court (statut DLR souvent dans short_message)
             dlr_text = pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
             logging.info(f"[DLR RECEIVED] {dlr_text}")
 
-            # Extraire ID et statut
-            stat = None
-            msg_id = None
+            # Initialisation des variables d'extraction
+            statut = None
+            message_id = None
+            erreur = None  # S'il y a un code erreur possible dans le texte (à adapter selon le format DLR)
+
+            # Exemple classique DLR: "id:123456 stat:DELIVRD ..."
             parts = dlr_text.split()
             for part in parts:
                 if part.startswith('stat:'):
-                    stat = part[5:]
+                    statut = part[5:]
                 elif part.startswith('id:'):
-                    msg_id = part[3:]
+                    message_id = part[3:]
+                elif part.startswith('err:'):  # Si le DLR a un code erreur
+                    erreur = part[4:]
 
-            logging.info(f"[DLR PARSED] message_id={msg_id}, status={stat}")
+            logging.info(f"[DLR PARSED] message_id={message_id}, statut={statut}, erreur={erreur}")
+
+            if not message_id:
+                logging.warning("[DLR WARNING] Pas de message_id trouvé dans DLR, impossible de mettre à jour.")
+                return
+
+            # Recherche de l'objet Smpp lié via message_id_smsc
+            smpp_obj = Smpp.objects.filter(message_id_smsc=message_id).first()
+
+            if smpp_obj:
+                # Mise à jour des champs DLR
+                smpp_obj.statut_dlr = statut
+                smpp_obj.erreur_dlr = erreur
+                smpp_obj.text_dlr = dlr_text
+                smpp_obj.date_reception_statut = timezone.now()
+                smpp_obj.save()
+                logging.info(f"[DLR UPDATED] Enregistrement SMPP {smpp_obj.id} mis à jour avec statut DLR.")
+            else:
+                logging.warning(f"[DLR WARNING] Aucun enregistrement SMPP trouvé pour message_id={message_id}.")
         except Exception as e:
-            logging.error(f"[DLR ERROR] {e}")
+            logging.error(f"[DLR ERROR] Erreur lors du traitement du DLR: {e}")
 
     def listen(self):
         try:
