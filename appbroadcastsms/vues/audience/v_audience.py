@@ -14,5 +14,5 @@ from appuser.vues.user.sz_user import EmptySZ
 
 class AudienceViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'put']
-    queryset = Smpp.objects.all()
+    queryset = Smpp.objects.all().order_by('id')
     serializer_class = AudienceSerializer
