@@ -140,7 +140,7 @@ if __name__ == '__main__':
         if cleaned_numbers:
             TPS = 10  # messages par seconde
             delay_between_msgs = 1.0 / TPS
-            message = "bulk test 1"
+            message = "bulk test avec 100 numero"
             recipients = list(cleaned_numbers)
 
             logging.info(f"[START BULK] Envoi de {len(recipients)} SMS avec TPS={TPS}/sec")
