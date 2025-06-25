@@ -63,29 +63,37 @@ class SmppClient:
                 logging.info(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
 
     def handle_deliver_sm(self, pdu):
-        try:
-            dlr_text = pdu.params.get('short_message', b'').decode('utf-8', errors='ignore')
-            logging.info(f"[DLR RECEIVED] {dlr_text}")
+    try:
+        # Récupérer le champ short_message en toute sécurité
+        short_message = pdu.params.get('short_message', b'')
+        if isinstance(short_message, bytes):
+            dlr_text = short_message.decode('utf-8', errors='ignore')
+        else:
+            dlr_text = str(short_message)
 
-            statut = None
-            message_id = None
-            erreur = None
+        logging.info(f"[DLR RECEIVED] {dlr_text}")
 
-            parts = dlr_text.split()
-            for part in parts:
-                if part.startswith('stat:'):
-                    statut = part[5:]
-                elif part.startswith('id:'):
-                    message_id = part[3:]
-                elif part.startswith('err:'):
-                    erreur = part[4:]
+        # Initialiser les valeurs extraites
+        statut = None
+        message_id = None
+        erreur = None
 
-            logging.info(f"[DLR PARSED] message_id={message_id}, statut={statut}, erreur={erreur}")
+        # Exemple de DLR : "id:123456 stat:DELIVRD err:000"
+        parts = dlr_text.strip().split()
+        for part in parts:
+            if part.startswith('stat:'):
+                statut = part[5:]
+            elif part.startswith('id:'):
+                message_id = part[3:]
+            elif part.startswith('err:'):
+                erreur = part[4:]
 
-            # Partie base de données supprimée pour simplifier si Django non utilisé
+        logging.info(f"[DLR PARSED] message_id={message_id}, statut={statut}, erreur={erreur}")
 
-        except Exception as e:
-            logging.error(f"[DLR ERROR] Erreur lors du traitement du DLR: {e}")
+        # Partie base de données ici (si tu veux la réintégrer plus tard)
+
+    except Exception as e:
+        logging.exception(f"[DLR ERROR] Erreur lors du traitement du DLR: {e}")
 
     def listen(self):
         try:
