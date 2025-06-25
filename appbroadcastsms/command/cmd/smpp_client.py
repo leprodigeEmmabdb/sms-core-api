@@ -63,37 +63,37 @@ class SmppClient:
                 logging.info(f"[SEND] ➤ Dest={dest} | Seq={pdu.sequence} | Status={pdu.status}")
 
     def handle_deliver_sm(self, pdu):
-    try:
-        # Récupérer le champ short_message en toute sécurité
-        short_message = pdu.params.get('short_message', b'')
-        if isinstance(short_message, bytes):
-            dlr_text = short_message.decode('utf-8', errors='ignore')
-        else:
-            dlr_text = str(short_message)
+        try:
+            # Récupérer le champ short_message en toute sécurité
+            short_message = pdu.params.get('short_message', b'')
+            if isinstance(short_message, bytes):
+                dlr_text = short_message.decode('utf-8', errors='ignore')
+            else:
+                dlr_text = str(short_message)
 
-        logging.info(f"[DLR RECEIVED] {dlr_text}")
+            logging.info(f"[DLR RECEIVED] {dlr_text}")
 
-        # Initialiser les valeurs extraites
-        statut = None
-        message_id = None
-        erreur = None
+            # Initialiser les valeurs extraites
+            statut = None
+            message_id = None
+            erreur = None
 
-        # Exemple de DLR : "id:123456 stat:DELIVRD err:000"
-        parts = dlr_text.strip().split()
-        for part in parts:
-            if part.startswith('stat:'):
-                statut = part[5:]
-            elif part.startswith('id:'):
-                message_id = part[3:]
-            elif part.startswith('err:'):
-                erreur = part[4:]
+            # Exemple de DLR : "id:123456 stat:DELIVRD err:000"
+            parts = dlr_text.strip().split()
+            for part in parts:
+                if part.startswith('stat:'):
+                    statut = part[5:]
+                elif part.startswith('id:'):
+                    message_id = part[3:]
+                elif part.startswith('err:'):
+                    erreur = part[4:]
 
-        logging.info(f"[DLR PARSED] message_id={message_id}, statut={statut}, erreur={erreur}")
+            logging.info(f"[DLR PARSED] message_id={message_id}, statut={statut}, erreur={erreur}")
 
-        # Partie base de données ici (si tu veux la réintégrer plus tard)
+            # Partie base de données ici (si tu veux la réintégrer plus tard)
 
-    except Exception as e:
-        logging.exception(f"[DLR ERROR] Erreur lors du traitement du DLR: {e}")
+        except Exception as e:
+            logging.exception(f"[DLR ERROR] Erreur lors du traitement du DLR: {e}")
 
     def listen(self):
         try:
