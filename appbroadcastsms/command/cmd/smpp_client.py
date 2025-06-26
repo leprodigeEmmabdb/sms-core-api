@@ -148,7 +148,8 @@ if __name__ == '__main__':
         if cleaned_numbers:
             TPS = 10  # messages par seconde
             delay_between_msgs = 1.0 / TPS
-            message = "Cherchez-vous un Smartphone, Powerbank,chargeur, ordinateur aux meilleurs prix ? Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04 ,Ref.rond-point magasin kitambo."
+            # message = "Cherchez-vous un Smartphone, Powerbank,chargeur, ordinateur aux meilleurs prix ? Rdv chez PKM-SHOP. Av. Colonel Mondjiba 04 ,Ref.rond-point magasin kitambo."
+            message="Profitez de 20 % de réduction sur tout le magasin jusqu'à dimanche ! Présentez ce SMS en caisse. PKM-INVEST/SHOP, avenue Colonel Monjiba, 04  ,réf. Rond-point magasin kitambo, voir arrêt taxybus boulevard et zando . Ont tient à vous !"
             recipients = list(cleaned_numbers)
 
             logging.info(f"[START BULK] Envoi de {len(recipients)} SMS avec TPS={TPS}/sec")
