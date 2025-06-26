@@ -127,7 +127,7 @@ def is_valid_phone(number):
 if __name__ == '__main__':
     smpp_client = SmppClient()
     try:
-        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../Q1_2024 Batch 26.csv')
+        csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../7.csv')
         csv_path = os.path.abspath(csv_path)
 
         cleaned_numbers = set()
